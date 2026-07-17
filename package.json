@@ -1,0 +1,20 @@
+{
+  "name": "web_gen_arucomap_wasm_plugin",
+  "version": "0.0.0",
+  "description": "Вспомогательный проект для **[web_gen_arucomap](https://github.com/crutoboy/web_gen_arucomap)**.",
+  "main": "dist/main.js",
+  "files": ["dist"],
+  "scripts": {
+    "build": "bash emscripten/build.sh",
+    "prepublishOnly": "npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@git.crutoboy.ru:2222/crutoboy/web_gen_arucomap_wasm_plugin.git"
+  },
+  "keywords": [],
+  "author": "crutoboy",
+  "license": "MIT",
+  "type": "commonjs"
+}
