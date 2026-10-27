@@ -1,50 +1,100 @@
 # web_gen_arucomap_wasm_plugin
 
-Вспомогательный проект для **[web_gen_arucomap](https://github.com/crutoboy/web_gen_arucomap)**.
+Вспомогательный WebAssembly-модуль для проекта **[web_gen_arucomap](https://github.com/crutoboy/web_gen_arucomap)**.
 
-### Описание
+Генерирует изображение карты ArUco-маркеров (аналог топика `/aruco_map/image` из Clover) прямо в браузере.
 
-Данный репозиторий содержит **C++ модуль**, компилируемый в **WebAssembly**, который отвечает за **генерацию изображения карты ArUco-маркеров**, полностью аналогичное тому, что публикуется в ROS-топике `/aruco_map/image` в прошивке Clover.
+### Что делает модуль
 
-### Задача проекта
+- Принимает содержимое `map.txt`
+- Рисует маркеры, оси
+- Возвращает изображение (для отображения в основном приложении)
 
-- Принимать текст карты (`map.txt` или структуру маркеров) из основного веб-приложения.
-- Генерировать **плоское изображение** карты с:
-  - Маркерами
-  - Координатной сеткой
-  - Осями
-  - Подписями ID маркеров (как в оригинальном `aruco_map` nodelet)
-- Возвращать изображение в браузер.
+### Сборка
 
-Это позволит пользователям **в реальном времени** видеть, как будет выглядеть их карта в системе Clover, без запуска ROS.
+Для сборки нужны:
 
-### Основные возможности
+- [Emscripten SDK](https://emscripten.org/)
+- OpenCV 4.10.0 + opencv_contrib (с модулем `aruco`)
+- Node.js (для удобного запуска сборки)
 
-- Точная имитация визуализации из `aruco_map` (image topic)
-- Поддержка параметров: размер изображения, отступы, отображение осей
-- Высокая производительность благодаря WASM
-- Минимальный размер бандла
-- Экспорт результата в PNG / SVG
+#### 1. Установка Emscripten
 
+```bash
+git clone https://github.com/emscripten-core/emsdk.git
+cd emsdk
+./emsdk install latest
+./emsdk activate latest
+source ./emsdk_env.sh
+cd ..
+```
+
+#### 2. Сборка OpenCV с поддержкой ArUco
+
+```bash
+# Клонируем стабильную версию 4.10.0
+git clone --branch 4.10.0 --depth 1 https://github.com/opencv/opencv.git
+git clone --branch 4.10.0 --depth 1 https://github.com/opencv/opencv_contrib.git
+
+cd opencv
+
+emcmake python3 platforms/js/build_js.py build_wasm \
+  --cmake_option="-DOPENCV_EXTRA_MODULES_PATH=../opencv_contrib/modules" \
+  --cmake_option="-DBUILD_opencv_aruco=ON" \
+  --cmake_option="-DBUILD_TESTS=OFF" \
+  --cmake_option="-DBUILD_PERF_TESTS=OFF" \
+  --cmake_option="-DBUILD_EXAMPLES=OFF" \
+  --build_wasm
+```
+
+> Сборка OpenCV занимает довольно много времени.
+
+#### 3. Сборка самого модуля
+
+Из корня репозитория:
+
+```bash
+npm run build
+```
+
+Скрипт `emscripten/build.sh` скомпилирует C++ код и положит результат в:
+
+```
+dist/main.js
+dist/main.wasm
+```
+
+### Использование в основном проекте
+
+Скопируйте собранные файлы в основной репозиторий:
+
+```bash
+cp dist/main.js   ../web_gen_arucomap/public/wasm/
+cp dist/main.wasm ../web_gen_arucomap/public/wasm/
+```
 
 ### Структура проекта
 
 ```
 web_gen_arucomap_wasm_plugin/
 ├── src/
-│   ├── renderer.cpp        # Основная логика отрисовки
-│   ├── map_parser.cpp      # Парсинг map.txt
-│   └── bindings.cpp        # Экспорт функций в JS
-├── include/
-├── CMakeLists.txt
-├── emscripten.cmake
+│   ├── main.cpp          # Точка входа + парсинг map.txt + биндинги
+│   └── draw.cpp / draw.h # Отрисовка карты
+├── emscripten/
+│   └── build.sh          # Скрипт сборки
+├── dist/                 # Результат сборки (main.js + main.wasm)
+├── package.json
 └── README.md
 ```
 
-### Связь с основным проектом
+### Зависимости при сборке
 
-Этот репозиторий предназначен для подключения как **WASM-плагин** к `web_gen_arucomap`.  
-Основной проект будет загружать скомпилированный WASM-модуль и использовать его для предпросмотра карты.
+В `.gitignore` уже добавлены:
+
+- `opencv/`
+- `opencv_contrib/`
+- `emsdk/`
+- `dist/`
 
 ### Лицензия
 
