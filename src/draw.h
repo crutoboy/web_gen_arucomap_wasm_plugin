@@ -1,9 +1,15 @@
-#include <cmath>
-#include <ros/ros.h>
-#include <opencv2/opencv.hpp>
-#include <opencv2/aruco.hpp>
+#pragma once
 
-void _drawPlanarBoard(cv::aruco::Board *_board, cv::Size outSize, cv::OutputArray _img,
-                      int marginSize, int borderBits, bool drawAxis); // editorconfig-checker-disable-line
-void _drawAxis(cv::InputOutputArray image, cv::InputArray cameraMatrix, cv::InputArray distCoeffs,
-               cv::InputArray rvec, cv::InputArray tvec, float length); // editorconfig-checker-disable-line
+#include <opencv2/core.hpp>
+#include <opencv2/aruco.hpp>
+#include <vector>
+
+// Простая структура как старый cv::aruco::Board (публичные поля)
+struct SimpleBoard {
+    std::vector<std::vector<cv::Point3f>> objPoints;
+    cv::Ptr<cv::aruco::Dictionary> dictionary;
+    std::vector<int> ids;
+};
+
+void _drawPlanarBoard(SimpleBoard* board, cv::Size outSize, cv::OutputArray img,
+                      int marginSize, int borderBits, bool drawAxis);

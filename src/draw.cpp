@@ -2,14 +2,16 @@
 // with some improvements and fixes
 
 #include "draw.h"
-#include <math.h>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/calib3d.hpp>
+#include <cmath>
 #include <vector>
 
 using namespace cv;
 using namespace cv::aruco;
 
-void _drawPlanarBoard(Board *_board, Size outSize, OutputArray _img, int marginSize,
-                      int borderBits, bool drawAxis) {
+void _drawPlanarBoard(SimpleBoard* _board, Size outSize, OutputArray _img,
+                      int marginSize, int borderBits, bool drawAxis) {
 
 	CV_Assert(outSize.area() > 0);
 	CV_Assert(marginSize >= 0);
@@ -75,7 +77,7 @@ void _drawPlanarBoard(Board *_board, Size outSize, OutputArray _img, int marginS
 		int side = std::round(diag / std::sqrt(2));
 		side = std::max(side, 10);
 
-		dictionary.drawMarker(_board->ids[m], side, marker, borderBits);
+		dictionary.generateImageMarker(_board->ids[m], side, marker, borderBits);
 		if (drawAxis) {
 			cvtColor(marker, marker, COLOR_GRAY2RGB);
 		}
