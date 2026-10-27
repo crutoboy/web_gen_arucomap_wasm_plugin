@@ -99,3 +99,9 @@ web_gen_arucomap_wasm_plugin/
 ### Лицензия
 
 [MIT](LICENSE)
+
+---
+
+**Автор:** [crutoboy](https://github.com/crutoboy)  
+**Зеркало:** https://git.crutoboy.ru/crutoboy/web_gen_arucomap_wasm_plugin
+**Оригинальный проект:** [CopterExpress/clover](https://github.com/CopterExpress/clover)
